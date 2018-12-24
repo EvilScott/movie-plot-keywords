@@ -5,6 +5,7 @@
   "author": "EvilScott <reis.robert.s@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "bulma": "^0.7.2",
     "express": "^4.16.4",
     "highland": "^2.13.0",
     "nodemon": "^1.18.9",

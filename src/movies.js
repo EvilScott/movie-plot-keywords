@@ -8,9 +8,24 @@ const pool = new Pool({
   password: 'plots',
 });
 
-const query = async (sql, ...params) => (await pool.query(sql, params)).rows;
-const stream = (sql, ...params) => pool.query(new QueryStream(sql, params));
+const db = {
+  find: async (sql, ...params) =>
+    (await db.query(sql, ...params))[0],
+
+  query: async (sql, ...params) =>
+    (await pool.query(sql, params)).rows,
+
+  stream: (sql, ...params) =>
+    pool.query(new QueryStream(sql, params))
+};
 
 module.exports = {
-  list: () => query('SELECT * FROM movies LIMIT 10'),
+  list: () =>
+    db.query(`SELECT * FROM movies WHERE origin = 'American' ORDER BY year, title LIMIT 50`),
+
+  find: (id) =>
+    db.find(`SELECT * FROM movies WHERE movie_id = $1 AND origin = 'American'`, id),
+
+  search: (term) =>
+    db.query(`SELECT * FROM movies WHERE origin = 'American' AND plot @@ to_tsquery($1) LIMIT 50`, term),
 };
