@@ -1,0 +1,24 @@
+version: '3.7'
+
+services:
+  nlp:
+    deploy:
+      replicas: 5
+    image: evilscott/nlp-flask:latest
+    ports:
+      - 5000
+    restart: always
+
+  server:
+    entrypoint: 'nodemon --watch src/ src/index.js'
+    environment:
+      - 'PATH=$PATH:/app/node_modules/.bin/'
+    image: node:10.12-alpine
+    ports:
+      - 8889:8889
+    restart: always
+    user: node
+    volumes:
+      - ./node_modules:/app/node_modules:cached
+      - ./src:/app/src:cached
+    working_dir: /app

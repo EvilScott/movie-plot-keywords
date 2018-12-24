@@ -1,0 +1,12 @@
+{
+  "name": "movie-plot-keywords",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "author": "EvilScott <reis.robert.s@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.4",
+    "highland": "^2.13.0",
+    "nodemon": "^1.18.9"
+  }
+}
