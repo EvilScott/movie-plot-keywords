@@ -1,8 +1,9 @@
 const express = require('express');
+const movies = require ('./movies');
 
 const app = express();
 
-app.get('/', (req, res) => res.json({ hello: 'world' }));
+app.get('/', async (req, res) => res.json(await movies.list()));
 
 app.use('*', (req, res) => res.sendStatus(404));
 

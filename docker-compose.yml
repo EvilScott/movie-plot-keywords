@@ -1,6 +1,18 @@
 version: '3.7'
 
 services:
+  db:
+    environment:
+      POSTGRES_USER: plots
+      POSTGRES_PASSWORD: plots
+    image: postgres:11
+    restart: always
+    ports:
+      - 8890:5432
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d:cached
+      - data:/var/lib/postgresql/data:delegated
+
   nlp:
     deploy:
       replicas: 5
@@ -10,10 +22,14 @@ services:
     restart: always
 
   server:
+    depends_on:
+      - db
     entrypoint: 'nodemon --watch src/ src/index.js'
     environment:
-      - 'PATH=$PATH:/app/node_modules/.bin/'
+      PATH: '$PATH:/app/node_modules/.bin/'
     image: node:10.12-alpine
+    links:
+      - nlp
     ports:
       - 8889:8889
     restart: always
@@ -22,3 +38,6 @@ services:
       - ./node_modules:/app/node_modules:cached
       - ./src:/app/src:cached
     working_dir: /app
+
+volumes:
+  data:
