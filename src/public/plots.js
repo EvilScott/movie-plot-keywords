@@ -11,26 +11,34 @@
   });
 
   const createMovieBox = (movie) => {
-    let movieBox = document.createElement('div');
+    const movieBox = document.createElement('div');
     movieBox.setAttribute('class', 'movie box');
+    movieBox.setAttribute('id', `movie-${movie.movie_id}`);
 
-    let h3 = document.createElement('h3');
+    const h3 = document.createElement('h3');
     h3.setAttribute('class', 'title');
-    h3.append(document.createTextNode(movie.title));
+    h3.append(document.createTextNode(movie.title)); // TODO add link?
 
-    let h4 = document.createElement('h4');
+    const h4 = document.createElement('h4');
     h4.setAttribute('class', 'subtitle');
     h4.append(document.createTextNode(movie.year));
 
-    let div = document.createElement('div');
+    const div = document.createElement('div');
     div.setAttribute('class', 'content'); // TODO click to expand
     div.innerHTML = movie.plot;
 
-    for (const el of [ h3, h4, div ]) {
-      movieBox.append(el);
+    const tags = document.createElement('div');
+    tags.setAttribute('class', 'tags');
+    for (const kw of movie.keywords) {
+      const tag = document.createElement('span');
+      tag.setAttribute('class', 'tag');
+      tag.append(document.createTextNode(kw));
+      tags.append(tag);
     }
 
-    // TODO keyword "tags" as <span class="tag">Foo</span>
+    for (const el of [ h3, h4, tags, div ]) {
+      movieBox.append(el);
+    }
 
     return movieBox;
   };

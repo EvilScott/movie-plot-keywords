@@ -25,7 +25,12 @@ const db = {
 
 module.exports = {
   search: async (term) => {
-    const sql = `SELECT * FROM movies WHERE origin = 'American' AND plot @@ to_tsquery($1) LIMIT 10`;
+    const sql = `
+      SELECT movie_id, title, year, plot
+      FROM movies
+      WHERE origin = 'American'
+      AND plot @@ to_tsquery($1)
+      LIMIT 10`;
     return db.stream(sql, term);
   },
 };

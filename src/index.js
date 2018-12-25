@@ -1,8 +1,8 @@
 const express = require('express');
 const hl = require('highland');
 const movies = require ('./movies');
+const { addKeywords } = require('./nlp');
 const { join } = require('path');
-const { keywords } = require('./nlp');
 
 const app = express();
 const root = join(__dirname, '..');
@@ -28,10 +28,7 @@ app.get('/api/movies/search/:term', async (req, res, next) => {
   try {
     const stream = await movies.search(term);
     hl(stream)
-      .map(async movie => {
-        movie.keywords = await keywords(movie.plot);
-        return movie;
-      })
+      .flatMap(movie => hl(addKeywords(movie)))
       .map(JSON.stringify)
       .intersperse('\n')
       .each(json => res.write(json));
