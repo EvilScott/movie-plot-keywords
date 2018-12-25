@@ -1,4 +1,5 @@
 const express = require('express');
+const hl = require('highland');
 const movies = require ('./movies');
 const path = require('path');
 
@@ -21,13 +22,27 @@ app.get('/scripts/plots.js', (req, res) =>
   res.sendFile('./src/public/plots.js', { root })
 );
 
+app.get('/api/movies', async (req, res, next) => {
+  try {
+    const stream = await movies.list();
+    hl(stream).map(JSON.stringify).intersperse('\n').each(json => res.write(json));
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.get('/api/movies/:id', async (req, res, next) =>
   res.json(await movies.find(req.params.id).catch(next))
 );
 
 app.get('/api/movies/search/:term', async (req, res, next) => {
   const term = req.params.term.replace(/\s+/g, ' & ');
-  res.json(await movies.search(term).catch(next));
+  try {
+    const stream = await movies.search(term);
+    hl(stream).map(JSON.stringify).intersperse('\n').each(json => res.write(json));
+  } catch (err) {
+    next(err);
+  }
 });
 
 app.use('*', (req, res) =>
@@ -41,6 +56,5 @@ app.use((err, req, res, next) => {
   console.error(error);
   res.status(500).json({ method, url, route, error });
 });
-
 
 app.listen(8889, () => console.log('Now listening on 8889'));

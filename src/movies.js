@@ -15,17 +15,27 @@ const db = {
   query: async (sql, ...params) =>
     (await pool.query(sql, params)).rows,
 
-  stream: (sql, ...params) =>
-    pool.query(new QueryStream(sql, params))
+  stream: async (sql, ...params) => {
+    const client = await pool.connect();
+    const stream = client.query(new QueryStream(sql, params));
+    stream.on('end', client.release);
+    return stream;
+  },
 };
 
 module.exports = {
-  list: () =>
-    db.query(`SELECT * FROM movies WHERE origin = 'American' ORDER BY year, title LIMIT 50`),
+  list: () => {
+    const sql = `SELECT * FROM movies WHERE origin = 'American' ORDER BY year, title LIMIT 50`;
+    return db.stream(sql);
+  },
 
-  find: (id) =>
-    db.find(`SELECT * FROM movies WHERE movie_id = $1 AND origin = 'American'`, id),
+  find: (id) => {
+    const sql = `SELECT * FROM movies WHERE movie_id = $1 AND origin = 'American'`;
+    return db.find(sql, id);
+  },
 
-  search: (term) =>
-    db.query(`SELECT * FROM movies WHERE origin = 'American' AND plot @@ to_tsquery($1) LIMIT 50`, term),
+  search: async (term) => {
+    const sql = `SELECT * FROM movies WHERE origin = 'American' AND plot @@ to_tsquery($1) LIMIT 50`;
+    return db.stream(sql, term);
+  },
 };
