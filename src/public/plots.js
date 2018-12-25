@@ -2,7 +2,32 @@
   const decoder = new TextDecoder('utf8');
   const decode = (value) => decoder.decode(value, { stream: true });
 
-  let done = false;
+  const createMovieBox = (movie) => {
+    let movieBox = document.createElement('div');
+    movieBox.setAttribute('class', 'movie box');
+
+    let h3 = document.createElement('h3');
+    h3.setAttribute('class', 'title');
+    h3.append(document.createTextNode(movie.title));
+
+    let h4 = document.createElement('h4');
+    h4.setAttribute('class', 'subtitle');
+    h4.append(document.createTextNode(movie.year));
+
+    let p = document.createElement('p');
+    p.setAttribute('class', 'content');
+    p.append(document.createTextNode(movie.plot));
+
+    for (const el of [ h3, h4, p ]) {
+      movieBox.append(el);
+    }
+    // TODO tags as <span class="tag">Foo</span>
+    return movieBox;
+  };
+
+  let movieTarget = document.getElementById('results');
+  console.log(movieTarget);
+  // TODO empty movieTarget
   const res = await fetch('/api/movies');
   const reader = res.body.getReader();
   hl(async (push, next) => {
@@ -15,6 +40,7 @@
   }).map(decode)
     .split('\n')
     .map(JSON.parse)
-    .done(() => done = true)
+    .map(createMovieBox)
+    .each(el => movieTarget.append(el));
 
 })(highland);
