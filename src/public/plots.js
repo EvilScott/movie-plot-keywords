@@ -21,15 +21,18 @@
     for (const el of [ h3, h4, p ]) {
       movieBox.append(el);
     }
-    // TODO tags as <span class="tag">Foo</span>
+
+    // TODO keyword "tags" as <span class="tag">Foo</span>
+
     return movieBox;
   };
 
   let movieTarget = document.getElementById('results');
-  console.log(movieTarget);
-  // TODO empty movieTarget
+  movieTarget.innerHTML = '';
+
   const res = await fetch('/api/movies');
   const reader = res.body.getReader();
+
   hl(async (push, next) => {
     const { done, value } = await reader.read();
     if (!done) {
