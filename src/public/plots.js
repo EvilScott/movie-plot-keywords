@@ -22,11 +22,11 @@
     h4.setAttribute('class', 'subtitle');
     h4.append(document.createTextNode(movie.year));
 
-    let p = document.createElement('p'); //TODO nl2br
-    p.setAttribute('class', 'content');
-    p.append(document.createTextNode(movie.plot));
+    let div = document.createElement('div');
+    div.setAttribute('class', 'content'); // TODO click to expand
+    div.innerHTML = movie.plot;
 
-    for (const el of [ h3, h4, p ]) {
+    for (const el of [ h3, h4, div ]) {
       movieBox.append(el);
     }
 
@@ -42,17 +42,20 @@
 
     const res = await fetch(`/api/movies/search/${term}`);
     const reader = res.body.getReader();
+    //TODO handle no results
 
     hl(async (push, next) => {
       const { done, value } = await reader.read();
-      if (!done) {
-        push(null, value);
-        return next();
-      }
-      push(null, hl.nil);
+      if (done) return push(null, hl.nil);
+      push(null, value);
+      next();
     }).map(decode)
       .split('\n')
       .map(JSON.parse)
+      .map(movie => {
+        movie.plot = movie.plot.split('\n').map(p => `<p>${p}</p>`).join('');
+        return movie;
+      })
       .map(createMovieBox)
       .each(el => {
         // TODO turn off loading
