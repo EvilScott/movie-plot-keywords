@@ -43,14 +43,22 @@
     return movieBox;
   };
 
+  const showLoader = () => {
+    document.getElementById('search-btn').setAttribute('class', 'button is-primary is-loading');
+  };
+
+  const hideLoader = () => {
+    document.getElementById('search-btn').setAttribute('class', 'button is-primary');
+  };
+
   const searchForTerm = async (term) => {
     const movieTarget = document.getElementById('results');
     movieTarget.innerHTML = '';
-    // TODO set loading
+    showLoader();
 
     const res = await fetch(`/api/movies/search/${term}`);
     const reader = res.body.getReader();
-    //TODO handle no results
+    //TODO handle no results?
 
     hl(async (push, next) => {
       const { done, value } = await reader.read();
@@ -65,10 +73,8 @@
         return movie;
       })
       .map(createMovieBox)
-      .each(el => {
-        // TODO turn off loading
-        movieTarget.append(el);
-      });
+      .each(el => movieTarget.append(el))
+      .done(hideLoader);
   };
 
 })(highland);

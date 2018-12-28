@@ -31,7 +31,8 @@ app.get('/api/movies/search/:term', async (req, res, next) => {
       .flatMap(movie => hl(addKeywords(movie)))
       .map(JSON.stringify)
       .intersperse('\n')
-      .each(json => res.write(json));
+      .each(json => res.write(json))
+      .done(() => res.end());
   } catch (err) {
     next(err);
   }
